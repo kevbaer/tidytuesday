@@ -1,0 +1,51 @@
+---
+title: "July_1_2025_Gas"
+format: html
+editor: visual
+---
+
+```{r}
+knitr::opts_chunk$set(dev = "ragg_png")
+library(tidyverse)
+
+tuesdata <- tidytuesdayR::tt_load('2025-07-01')
+gas_prices <- tuesdata$weekly_gas_prices
+```
+
+```{r}
+gas_prices |> 
+  filter(date >= "2000-01-01", grade %in% c("midgrade", "premium", "regular")) |> 
+  group_by(date, grade) |> 
+  summarize(price = mean(price), .groups = "drop") |> 
+  ggplot() + 
+  aes(x = date, y = price, group = grade, color = grade) +
+  geom_line() +
+  theme_bw(base_size = 16, base_family = "barlow")
+  
+```
+
+```{r}
+q <- gas_prices |> 
+  filter(date >= "2020-01-01", 
+         grade %in% c("regular", "midgrade", "premium")) |> 
+  group_by(date, grade) |> 
+  summarize(price = mean(price), .groups = "drop") |> 
+  group_by(grade) |> 
+  mutate(lagged_price = lag(price)) |> 
+  mutate(price_change = price - lagged_price) |> 
+  drop_na(price_change) |> 
+  ggplot() +
+  aes(x = date, y = price_change, color = grade, group = grade) +
+  geom_line() + 
+  facet_wrap(~fct_relevel(grade, "regular" )) +
+  scale_color_manual(values = wesanderson::wes_palette("GrandBudapest1"))+
+  theme_bw(base_family = "barlow", base_size = 16) +
+  theme(legend.position = "none") +
+  theme(strip.background =element_rect(fill="pink1")) +
+  scale_y_continuous("Price Change", limits =c(-.3, .3), labels = scales::label_currency(preffix = "$", )) +
+  labs(caption = "By Kevin Baer - 7/1/2025", x = "Date") + 
+  ggtitle("Gas Prices Change ±10 Cents Week Over Week", subtitle = "Little Difference Between Grades") +
+  ggview::canvas(12, 6) 
+
+# ggview::save_ggplot(q, "July_1_2025_Gas.png")
+```
