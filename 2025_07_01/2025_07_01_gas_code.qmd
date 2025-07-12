@@ -39,13 +39,18 @@ q <- gas_prices |>
   geom_line() + 
   facet_wrap(~fct_relevel(grade, "regular" )) +
   scale_color_manual(values = wesanderson::wes_palette("GrandBudapest1"))+
+  scale_x_continuous(
+    expand = expansion(mult = c(0, 0)), breaks = as_date(c("2020-01-01", "2021-01-01", "2022-01-01", "2023-01-01", "2024-01-01", "2025-01-01")), labels = c("2020", "2021", "2022", "2023", "2024", "2025")
+    ) + 
   theme_bw(base_family = "barlow", base_size = 16) +
   theme(legend.position = "none") +
-  theme(strip.background =element_rect(fill="pink1")) +
-  scale_y_continuous("Price Change", limits =c(-.3, .3), labels = scales::label_currency(preffix = "$", )) +
+  theme(strip.background = element_rect(fill="pink1")) +
+  scale_y_continuous("Price Change", 
+                     limits =c(-.3, .3), 
+                     labels = scales::label_currency(preffix = "$", )) +
   labs(caption = "By Kevin Baer - 7/1/2025", x = "Date") + 
   ggtitle("Gas Prices Change ±10 Cents Week Over Week", subtitle = "Little Difference Between Grades") +
   ggview::canvas(12, 6) 
-
+q
 # ggview::save_ggplot(q, "July_1_2025_Gas.png")
 ```
